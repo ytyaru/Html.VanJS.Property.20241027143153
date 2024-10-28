@@ -40,8 +40,20 @@ window.addEventListener('DOMContentLoaded', async(e)=>{
         const c = new C()
         a.t(Object.getOwnPropertyNames(C).includes('name'))
         console.log(c.name) // なぜかundefinedになる…
-        a.t('G:A'===c.name)
+        //a.t('G:A'===c.name)
+        a.t(undefined===c.name) // なぜかundefinedになる…
     })();
+    ;(function(){
+        class C {constructor(){this._name='A'}}
+        Object.defineProperty(C.prototype, 'name', { // prototype にセットすると成功する！
+            get(){return 'G:'+this._name},
+            set(v){this._name='S:'+v},
+        })
+        const c = new C()
+        a.t(Object.getOwnPropertyNames(C).includes('name'))
+        a.t('G:A'===c.name) // ちゃんと取得できる！
+    })();
+
     a.fin()
 })
 </script>
