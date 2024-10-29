@@ -11,6 +11,9 @@ window.addEventListener('DOMContentLoaded', async(e)=>{
         const c = new C()
         class D extends C {}
         const d = new D()
+        console.log(c)
+        console.log(Object.getOwnPropertyNames(c).includes('_name'))
+        console.log(Object.getOwnPropertyNames(C.prototype).includes('_name'))
         console.log(d)
         a.t(d.hasOwnProperty('_name'))
     })();
