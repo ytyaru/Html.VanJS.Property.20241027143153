@@ -1,0 +1,75 @@
+<meta charset="UTF-8">
+<script src="../../../docs/lib/util/type.js"></script>
+<script src="../../../docs/lib/util/test/assertion.js"></script>
+<script src="../../../docs/lib/util/test/black-box.js"></script>
+<script src="field.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', async(e)=>{
+    const a = new Assertion()
+    const bb = new BlackBox(a)
+    ;(function(){
+        const name = field('name', 'String', 'Yamada')
+        console.log(name)
+        console.log(Object.getOwnPropertyNames(name))
+        console.log(name.hasOwnProperty('_'))
+        console.log(name.hasOwnProperty('v'))
+        const age = field('age', 'Integer', 0)
+        console.log(age)
+
+        a.t('Yamada'===name.v)
+        a.t(0===age.v)
+    })();
+    ;(function(){
+        class C {constructor(){this._name='A'}}
+        const c = new C()
+        class D extends C {}
+        const d = new D()
+        console.log(c)
+        console.log(Object.getOwnPropertyNames(c).includes('_name'))
+        console.log(Object.getOwnPropertyNames(C.prototype).includes('_name'))
+        console.log(d)
+        a.t(d.hasOwnProperty('_name'))
+    })();
+    ;(function(){
+        class C {constructor(){this._name='A'} get name(){return this._name}}
+        const c = new C()
+        class D extends C {}
+        const d = new D()
+        console.log(d)
+        console.log(Object.getOwnPropertyNames(d)) // ディスクリプタは表示されない…
+        console.log(Object.getOwnPropertyDescriptor(d, 'name')) // ディスクリプタは取得されない…
+        console.log(Object.getOwnPropertyNames(c)) // ディスクリプタは表示されない…
+        console.log(Object.getOwnPropertyDescriptor(c, 'name')) // ディスクリプタは取得されない…
+        console.log(Object.getOwnPropertyNames(C)) // ディスクリプタはクラス直下に存在する！
+        console.log(Object.getOwnPropertyDescriptor(C, 'name')) // ディスクリプタはクラス直下に存在する！
+        console.log(Object.getOwnPropertyNames(D)) // ディスクリプタはクラス直下に存在する！
+        console.log(Object.getOwnPropertyDescriptor(D, 'name')) // ディスクリプタはクラス直下に存在する！
+        a.t(d.hasOwnProperty('_name'))
+        a.f(d.hasOwnProperty('name')) // descriptor は 継承されない？
+    })();
+    ;(function(){
+        class C {constructor(){this._name='A'}}
+        Object.defineProperty(C, 'name', {
+            get(){return 'G:'+this._name},
+            set(v){this._name='S:'+v},
+        })
+        const c = new C()
+        a.t(Object.getOwnPropertyNames(C).includes('name'))
+        console.log(c.name) // なぜかundefinedになる…
+        //a.t('G:A'===c.name)
+        a.t(undefined===c.name) // なぜかundefinedになる…
+    })();
+    ;(function(){
+        class C {constructor(){this._name='A'}}
+        Object.defineProperty(C.prototype, 'name', { // prototype にセットすると成功する！
+            get(){return 'G:'+this._name},
+            set(v){this._name='S:'+v},
+        })
+        const c = new C()
+        a.t(Object.getOwnPropertyNames(C).includes('name'))
+        a.t('G:A'===c.name) // ちゃんと取得できる！
+    })();
+
+    a.fin()
+})
+</script>
